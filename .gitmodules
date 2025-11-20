@@ -15,3 +15,9 @@
 	path = libs/SDL2_image
 	url = https://github.com/libsdl-org/SDL_image.git
 	branch = SDL2
+[submodule "libs/spdlog"]
+	path = libs/spdlog
+	url = https://github.com/gabime/spdlog
+[submodule "libs/entt"]
+	path = libs/entt
+	url = https://github.com/skypjack/entt

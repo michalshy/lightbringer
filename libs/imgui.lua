@@ -2,6 +2,7 @@ project "ImGui"
 	kind "StaticLib"
 	language "C"
 	architecture "x86_64"
+    staticruntime "off"
 
 	targetdir "../bin/%{cfg.buildcfg}"
 	objdir "../obj/%{cfg.buildcfg}"

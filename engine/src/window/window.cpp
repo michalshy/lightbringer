@@ -1,9 +1,9 @@
 #include "window.h"
 #include "log.h"
-#include <SDL/SDL2.h>
-#include <SDL2/SDL_render.h>
+#include <SDL.h>
+#include <SDL_render.h>
 #include <SDL_video.h>
-#include <GL/glew.h>
+#include <glad/glad.h>
 
 constexpr int SCREEN_WIDTH = 1280;
 constexpr int SCREEN_HEIGHT = 720;
@@ -15,6 +15,11 @@ bool Window::Init()
         return false;
     }
     else {
+
+        if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
+            LOG_ERROR("Failed to initialize GLAD!");
+            return false;
+        }
 
         if(!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
         {
@@ -45,15 +50,7 @@ bool Window::Init()
             }
             SDL_GL_MakeCurrent(m_Window, m_Context);
 
-            glewExperimental = GL_TRUE;
-            GLenum glew_err = glewInit();
-            if (glew_err != GLEW_OK) {
-                LOG_ERROR("Error: glewInit failed: {}", SDL_GetError());
-                return false;
-            }
-
             glGetError();
-
         }
     }
     return true;
