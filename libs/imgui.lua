@@ -1,18 +1,24 @@
 project "ImGui"
 	kind "StaticLib"
-	language "C"
+	language "C++"
+	cppdialect "C++17"
 	architecture "x86_64"
     staticruntime "off"
 
 	targetdir "../bin/%{cfg.buildcfg}"
 	objdir "../obj/%{cfg.buildcfg}"
 	
-	includedirs { "imgui/", "glad/include", "glfw/include/" }
+	includedirs { 
+		"imgui",
+		"imgui/backends",
+		"glad/include",
+		"SDL2/include",
+	}
 
-	files
+	files 
 	{
 		"imgui/*.cpp",
-		"imgui/backends/imgui_impl_glfw.cpp",
+		"imgui/backends/imgui_impl_sdl2.cpp",
 		"imgui/backends/imgui_impl_opengl3.cpp"
 	}
 

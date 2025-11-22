@@ -103,24 +103,24 @@ void App::PollEvents()
 void App::OnFrame(float delta_time)
 {
     game->Update(delta_time);
+    game->Draw();
 #ifdef BUILD_WITH_EDITOR
     editor->OnFrame(delta_time);
 #endif
-    game->Draw();
 }
 
 void App::EndFrame()
 {
+    Renderer::EndFrame();
 #ifdef BUILD_WITH_EDITOR
     editor->EndFrame();
 #endif
-    Renderer::EndFrame();
 }
 
 void App::PostFrame()
 {
+    Renderer::PostFrame();
 #ifdef BUILD_WITH_EDITOR
     editor->PostFrame();
 #endif
-    Renderer::PostFrame();
 }

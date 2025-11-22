@@ -1,7 +1,11 @@
 #include "shader.h"
 
 #include <iostream>
-#include <glad/glad.h>
+#if HW_LINUX
+	#include "GL/glew.h"
+#else
+	#include <glad/glad.h>
+#endif
 #include "log.h"
 #include <fstream>
 #include <sstream>

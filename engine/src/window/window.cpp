@@ -3,7 +3,11 @@
 #include <SDL.h>
 #include <SDL_render.h>
 #include <SDL_video.h>
+#if HW_WIN
 #include <glad/glad.h>
+#else
+#include <GL/glew.h>
+#endif
 
 constexpr int SCREEN_WIDTH = 1280;
 constexpr int SCREEN_HEIGHT = 720;
@@ -15,12 +19,6 @@ bool Window::Init()
         return false;
     }
     else {
-
-        if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
-            LOG_ERROR("Failed to initialize GLAD!");
-            return false;
-        }
-
         if(!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
         {
             LOG_WARN("Warning: Linear texture filtering not enabled!");
@@ -49,6 +47,20 @@ bool Window::Init()
                 return false;
             }
             SDL_GL_MakeCurrent(m_Window, m_Context);
+
+            #if HW_WIN 
+                if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
+                    LOG_ERROR("Failed to initialize GLAD!");
+                    return false;
+                }
+
+            #elif HW_LINUX
+                glewExperimental = GL_TRUE;  // Required for core profile
+                if (glewInit() != GLEW_OK) {
+                    LOG_ERROR("Failed to initialize GLEW!");
+                    return false;
+                }
+            #endif
 
             glGetError();
         }

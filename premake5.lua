@@ -1,3 +1,7 @@
+if os.target() == "linux" then
+    require "premake-plugins/export-compile-commands"
+end
+
 workspace "Lightbringer"
     configurations { "Debug", "Release" }
     startproject "Lightbringer"
@@ -23,15 +27,15 @@ project "Engine"
     objdir "build/engine/%{cfg.buildcfg}"
 
     includedirs { 
+        "libs/entt/single_include/",
         "libs/glad/include/", 
         "libs/glm/", 
         "libs/imgui/", 
         "libs/imgui/examples", 
         "libs/SDL2/include", 
         "libs/SDL2_image/include", 
+        "libs/spdlog/include",
         "engine/src",
-        "libs/entt/single_include",
-        "libs/spdlog/include"
     }
 
     files { 
@@ -56,11 +60,20 @@ project "Engine"
             "libs/SDL2_image/build/%{cfg.buildcfg}"
         }
 
-    links { "GLM", "GLAD", "ImGui", "spdlog" }
-    filter "configurations:Debug"
+    links { "GLM", "ImGui", "spdlog" }
+
+    filter "system:linux"
+        links { "GL", "GLEW", "dl", "pthread", "SDL2", "SDL2_image" }
+        defines { "HW_LINUX" }
+
+    filter "system:windows"
+        links { "GLAD" }
+        defines { "HW_WIN" }
+
+    filter { "system:windows", "configurations:Debug" }
         links { "SDL2d", "SDL2maind", "SDL2_imaged" }
 
-    filter "configurations:Release"
+    filter { "system:windows", "configurations:Release" }
         links { "SDL2", "SDL2main", "SDL2_image" }
 
     filter "system:linux"
@@ -74,11 +87,6 @@ project "Engine"
     filter "system:windows"
         defines { "_WINDOWS" }
 
-    
-
-    
-
-
 project "Lightbringer"
     kind "ConsoleApp"
     language "C++"
@@ -88,29 +96,64 @@ project "Lightbringer"
     targetdir "build/game/bin/%{cfg.buildcfg}"
     objdir "build/game/obj/%{cfg.buildcfg}"
 
-    includedirs { "include/", "libs/glad/include/", "libs/glm/", "libs/imgui/", "libs/imgui/examples", "libs/SDL2/include", "libs/SDL2_image/include" }
+    includedirs { 
+        "libs/glad/include/", 
+        "libs/glm/", 
+        "libs/imgui/", 
+        "libs/imgui/examples", 
+        "libs/SDL2/include", 
+        "libs/SDL2_image/include", 
+        "engine/src", 
+        "game/src",
+        "libs/entt/single_include/", 
+        "libs/spdlog/include"
+    }
 
-    files { "game/src/*.cpp" }
+    links { "engine", "GLM", "ImGui", "spdlog" }
 
-    links { "SDL2", "SDL2main", "SDL2_image", "GLM", "GLAD", "ImGui", "Engine" }
+    files { "game/src/**.cpp", "game/src/**.h" }
+    
+    filter "system:windows"
+    libdirs {
+        "libs/SDL2/build/%{cfg.buildcfg}",
+        "libs/SDL2_image/build/%{cfg.buildcfg}"
+    }
+
+    filter "system:linux"
+        links { "GL", "GLEW", "dl", "pthread", "SDL2", "SDL2_image" }
+        defines { "HW_LINUX" }
 
     filter "system:windows"
-        libdirs {
-            "libs/SDL2/build/%{cfg.buildcfg}",
-            "libs/SDL2_image/build/%{cfg.buildcfg}"
-        }
-        links { "SDL2", "SDL2main" }
+        links { "GLAD" }
+        defines { "HW_WIN" }
+
+    filter { "system:windows", "configurations:Debug" }
+        links { "SDL2d", "SDL2maind", "SDL2_imaged" }
+
+    filter { "system:windows", "configurations:Release" }
+        links { "SDL2", "SDL2main", "SDL2_image" }
 
     filter "system:linux"
         links { "dl", "pthread" }
-
         defines { "_X11" }
-
 
     filter "system:windows"
         defines { "_WINDOWS" }
+    
+    filter "system:windows"
+        postbuildcommands {
+            '{COPY} res "%{cfg.targetdir}/res"'
+        }
 
-include "libs/glad.lua"
+    filter "system:linux"
+        postbuildcommands {
+            '{COPY} res/ "%{cfg.targetdir}/res"'
+        }
+        
 include "libs/glm.lua"
 include "libs/imgui.lua"
 include "libs/spdlog.lua"
+
+if os.target() == "windows" then
+    include "libs/glad.lua"
+end

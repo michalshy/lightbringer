@@ -1,0 +1,38 @@
+{
+    "type": "Onebit_tileset",
+    "version": 1,
+    "id": "onebit",
+    "name": "onebit",
+    "texture": "res/sprites/sheets/tileset1.png",
+    "textureSize": { "width": 512, "height": 512 },
+    "tileSize": { "width": 32, "height": 32 },
+    "margin": 0,
+    "spacing": 0,
+    "columns": 16,
+    "rows": 16,
+    "tileCount": 256,
+    "origin": { "x": 0.5, "y": 0.5 },
+    "defaultProperties": {
+        "collision": "none",
+        "walkable": true,
+        "slippery": false
+    },
+    "tiles": [
+        { "id": 0, "name": "grass", "properties": { "walkable": true, "collision": "none", "terrain": "grass" } },
+        { "id": 1, "name": "dirt", "properties": { "walkable": true, "terrain": "dirt" } },
+        { "id": 2, "name": "water", "properties": { "walkable": false, "collision": "liquid", "swimmable": true } },
+        { "id": 3, "name": "stone", "properties": { "walkable": true, "collision": "solid" } },
+        { "id": 4, "name": "wall", "properties": { "walkable": false, "collision": "solid", "blocking": true } },
+        { "id": 5, "name": "ladder", "properties": { "walkable": true, "climbable": true } },
+        { "id": 6, "name": "door_closed", "properties": { "walkable": false, "interactive": true, "state": "closed" } },
+        { "id": 7, "name": "door_open", "properties": { "walkable": true, "interactive": true, "state": "open" } }
+    ],
+    "animations": [
+        { "name": "water_swim", "frames": [2, 18, 34, 50], "frameDuration": 200, "loop": true }
+    ],
+    "meta": {
+        "author": "auto-generated",
+        "created": "2025-10-30T00:00:00Z",
+        "notes": "Adjust tile IDs to match actual texture layout and add colliders or custom properties per tile as needed."
+    }
+}

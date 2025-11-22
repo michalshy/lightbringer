@@ -1,5 +1,9 @@
 #include "renderer.h"
-#include <glad/glad.h>
+#if HW_WIN
+    #include <glad/glad.h>
+#else
+    #include <GL/glew.h>
+#endif
 #include <glm/ext/matrix_clip_space.hpp>
 #include "light_manager.h"
 

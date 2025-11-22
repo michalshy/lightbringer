@@ -1,10 +1,10 @@
 #include "editor.h"
 
 #include "imgui.h"
-#include "imgui_impl_opengl3.h"
+#include "backends/imgui_impl_opengl3.h"
 #include <SDL_events.h>
 #include <SDL_mouse.h>
-#include <fmt/format.h>
+#include <spdlog/fmt/bundled/format.h>
 
 bool Editor::Init(Game* game, SDL_Window* window, SDL_GLContext context)
 {
@@ -20,13 +20,7 @@ bool Editor::Init(Game* game, SDL_Window* window, SDL_GLContext context)
     ImGuiIO &io = ImGui::GetIO(); (void)io;
     ImGui::StyleColorsDark();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;       
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;     
     ImGuiStyle& style = ImGui::GetStyle();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-        style.WindowRounding = 0.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-    }
 
     const char* glsl_version = "#version 330";
     
@@ -59,12 +53,7 @@ void Editor::EndFrame()
 
 void Editor::PostFrame()
 {
-    ImGuiIO& io = ImGui::GetIO(); 
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-        ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
-        SDL_GL_MakeCurrent(m_Window, m_Context);
-    }
+    
 }
 
 void Editor::Exit()
