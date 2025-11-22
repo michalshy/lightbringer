@@ -18,3 +18,4 @@ libs/Makefile
 imgui.ini
 
 .vscode
+*.exe
