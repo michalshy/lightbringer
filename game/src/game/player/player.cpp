@@ -98,4 +98,6 @@ void Player::ProcessKeyboard(PlayerMovement dir, float delta_time)
     if (dir == PlayerMovement::DOWN)  m_State.queued_move += glm::vec3{0.0f, -velocity, 0.0f};
     if (dir == PlayerMovement::LEFT)  m_State.queued_move += glm::vec3{-velocity, 0.0f, 0.0f};
     if (dir == PlayerMovement::RIGHT) m_State.queued_move += glm::vec3{velocity, 0.0f, 0.0f};
+
+    LOG_DEBUG("queued move: {}, {}, {}", m_State.queued_move.x, m_State.queued_move.y, m_State.queued_move.z);
 }

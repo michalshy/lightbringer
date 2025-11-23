@@ -32,7 +32,7 @@ bool Window::Init()
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-        SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+        SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
         m_Window = SDL_CreateWindow("Game",
                                           SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                           SCREEN_WIDTH, SCREEN_HEIGHT, window_flags);
@@ -76,6 +76,16 @@ SDL_Window* Window::GetWindowRaw()
 SDL_GLContext Window::GetContextRaw()
 {
     return m_Context;
+}
+
+void Window::ToggleFullscreen()
+{
+    if(!m_Fullscreen)
+        SDL_SetWindowFullscreen(m_Window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    else
+        SDL_SetWindowFullscreen(m_Window, 0);
+
+    m_Fullscreen = !m_Fullscreen;
 }
 
 void Window::Exit()

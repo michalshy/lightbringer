@@ -3,7 +3,7 @@ if os.target() == "linux" then
 end
 
 workspace "Lightbringer"
-    configurations { "Debug", "Release" }
+    configurations { "debug", "release" }
     startproject "Lightbringer"
     staticruntime "off"
 
@@ -13,7 +13,7 @@ workspace "Lightbringer"
         defines { "DEBUG", "DEBUG_SHADER" }
         symbols "On"
 
-    filter "configurations:Release"
+    filter "configurations:release"
         defines { "RELEASE" }
         optimize "Speed"
         flags { "LinkTimeOptimization" }
@@ -70,10 +70,10 @@ project "Engine"
         links { "GLAD" }
         defines { "HW_WIN" }
 
-    filter { "system:windows", "configurations:Debug" }
+    filter { "system:windows", "configurations:debug" }
         links { "SDL2d", "SDL2maind", "SDL2_imaged" }
 
-    filter { "system:windows", "configurations:Release" }
+    filter { "system:windows", "configurations:release" }
         links { "SDL2", "SDL2main", "SDL2_image" }
 
     filter "system:linux"
@@ -127,10 +127,10 @@ project "Lightbringer"
         links { "GLAD" }
         defines { "HW_WIN" }
 
-    filter { "system:windows", "configurations:Debug" }
+    filter { "system:windows", "configurations:debug" }
         links { "SDL2d", "SDL2maind", "SDL2_imaged" }
 
-    filter { "system:windows", "configurations:Release" }
+    filter { "system:windows", "configurations:release" }
         links { "SDL2", "SDL2main", "SDL2_image" }
 
     filter "system:linux"

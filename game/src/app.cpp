@@ -1,3 +1,5 @@
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_keycode.h>
 #include <memory>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -97,6 +99,22 @@ void App::PollEvents()
             quit = true;
         if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE && e.window.windowID == SDL_GetWindowID(window->GetWindowRaw()))
             quit = true;
+        if (e.type == SDL_KEYDOWN)
+        {
+            switch (e.key.keysym.sym) {
+                case SDLK_BACKQUOTE:
+                {
+                    window->ToggleFullscreen();
+                    break;
+                }
+                //todo define this for ifdef debug
+                case SDLK_ESCAPE:
+                {
+                    quit = true;
+                    break;
+                }
+            }
+        }
     }
 }
 

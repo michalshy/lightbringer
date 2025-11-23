@@ -43,4 +43,6 @@ private:
     
     void ProcessKeyboard(PlayerMovement dir, float delta_time);
     void CheckCollision(glm::vec3 playerPos, glm::ivec2 playerSize, glm::vec3 otherPos, glm::ivec2 otherSize);
+public:
+    PlayerState GetState() { return m_State; }
 };
