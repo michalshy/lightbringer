@@ -186,6 +186,12 @@ void Renderer::SetProjectionMatrix(const glm::mat4& matrix)
     s_Data->ProjectionMatrix = matrix;
 }
 
+void Renderer::DrawFullscreenQuad(uint32_t texture)
+{
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glm::mat4 identity(1.0f);
+    Submit(identity, glm::vec4(1.0f));  // use textured shader
+}
 
 void Renderer::EndFrame()
 {

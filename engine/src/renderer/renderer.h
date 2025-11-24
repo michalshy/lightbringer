@@ -26,6 +26,8 @@ public:
     ENGINE_API static void Submit(const glm::vec2& pos, const glm::vec2& scale, const glm::vec4& color);
     ENGINE_API static void Submit(const glm::vec2& pos, const glm::vec2& scale, float rotation, const glm::vec4& color);
     ENGINE_API static void Flush();
+
+    ENGINE_API static void DrawFullscreenQuad(uint32_t texture);
     
     ENGINE_API static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
 
