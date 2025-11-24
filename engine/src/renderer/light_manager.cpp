@@ -1,4 +1,5 @@
 // lighterer.cpp
+#include "engine_pch.h"
 #include "light_manager.h"
 #include "scene/components.h"
 #include "scene/scene.h"
@@ -23,7 +24,7 @@ void LightManager::BeginFrame(Scene* scene)
     for(auto [ent, transform, light] : scene->View<CoTransform, CoLight>().each())
     {
         s_Data->Lights.push_back({
-                { transform.transform[3] },
+                { transform.position },
                 light.color,
                 light.radius,
                 light.intensity

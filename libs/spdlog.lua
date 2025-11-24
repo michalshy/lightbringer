@@ -29,6 +29,9 @@ project "spdlog"
         defines { "_WINDOWS" }
         links { "user32", "gdi32", "winmm", "imm32", "version", "ole32", "oleaut32", "setupapi" }
 
+    filter "action:vs*"
+        buildoptions { "/utf-8" }
+
     filter "configurations:Debug"
         runtime "Debug"
         symbols "On"

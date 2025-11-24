@@ -36,7 +36,6 @@ private:
     void InitLight();
     bool Birth(int y, int x);
     bool Survival(int y, int x);
-    int CountWallNeighbors(int y, int x);
     void DefineEntites();
     void ComputeEnemies();
     void ComputeAllies();

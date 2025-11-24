@@ -8,7 +8,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include "game/map/map_consts.h"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <memory>
 
 constexpr glm::ivec2 PLAYER_SIZE{6,12};
@@ -17,9 +17,10 @@ Player::Player(Entity&& entity) : m_PlayerEntity(entity)
 {
     const glm::vec3 start_position {(GRID_DIMENSIONS.x/2)*TILE_SIZE, (GRID_DIMENSIONS.y/2 - 1)*TILE_SIZE, 0.1f};
     // lets create components
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), start_position);
-    model = glm::scale(model, glm::vec3(PLAYER_SIZE.x, PLAYER_SIZE.y, 1.0f));
-    m_PlayerEntity.AddComponent<CoTransform>(model);
+    m_PlayerEntity.AddComponent<CoTransform>();
+    auto& t = m_PlayerEntity.GetComponent<CoTransform>();
+    t.position = start_position;
+    t.scale = glm::vec3(PLAYER_SIZE.x, PLAYER_SIZE.y, 1.0f);
     m_PlayerEntity.AddComponent<CoSprite>(glm::vec4{0.0f, 0.0f, 1.0f, 1.0f});
     m_PlayerEntity.AddComponent<CoCollider>(glm::ivec2(PLAYER_SIZE.x, PLAYER_SIZE.y), false);
     m_PlayerEntity.AddComponent<CoLight>(CoLight{glm::vec3{1.0f, 1.0f, 0.6f}, 350.0f, 0.7f, true});
@@ -54,7 +55,7 @@ void Player::HandleInput(float delta_time)
 
 void Player::HandleCamera(float /*delta_time*/) // TODO: USE DELTA TIME TO SMOOTH looking IN INPUT DIRECTIOn
 {
-    glm::vec3 pos = glm::vec3(m_PlayerEntity.GetComponent<CoTransform>().transform[3]); // x,y,z
+    glm::vec3 pos = glm::vec3(m_PlayerEntity.GetComponent<CoTransform>().position); // x,y,z
     m_Camera->SetPosition(pos);
 }
 

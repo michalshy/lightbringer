@@ -55,10 +55,10 @@ glm::vec3 Map::CheckBounds(Player& player)
     glm::vec3 mask{1.0f, 1.0f, 1.0f};
 
     // --- X AXIS ---
-    int minX = static_cast<int>((next.x - size.x/2.0) / TILE_SIZE);
-    int maxX = static_cast<int>((next.x + size.x/2.0) / TILE_SIZE);
-    int minY = static_cast<int>((player.GetPosition().y - size.y/2.0) / TILE_SIZE);
-    int maxY = static_cast<int>((player.GetPosition().y + size.y/2.0) / TILE_SIZE);
+    int minX = static_cast<int>((next.x - size.x/2.0f) / TILE_SIZE);
+    int maxX = static_cast<int>((next.x + size.x/2.0f) / TILE_SIZE);
+    int minY = static_cast<int>((player.GetPosition().y - size.y/2.0f) / TILE_SIZE);
+    int maxY = static_cast<int>((player.GetPosition().y + size.y/2.0f) / TILE_SIZE);
 
     for (int y = minY; y <= maxY; ++y)
     {
@@ -145,11 +145,9 @@ void Map::DefineEntites()
         for(int j = 0; j < (int)map_grid[i].size(); j++)
         {
             Entity quad = m_Scene->CreateEntity();
-            glm::vec3 scale = {TILE_SIZE, TILE_SIZE, 1.0f};
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, start_position + glm::vec3(TILE_SIZE / 2.0f, TILE_SIZE / 2.0f, 0.0f));
-            model = glm::scale(model, scale);
-            quad.AddComponent<CoTransform>(model);
+            quad.AddComponent<CoTransform>();
+            quad.GetComponent<CoTransform>().position = start_position + glm::vec3(TILE_SIZE / 2.0f, TILE_SIZE / 2.0f, 0.0f);
+            quad.GetComponent<CoTransform>().scale = { TILE_SIZE, TILE_SIZE, 1.0f };
             
             glm::vec4 color = ComputeColors(i, j);
                 
@@ -356,7 +354,7 @@ void Map::ComputeResources()
 
 void Map::ComputeLight()
 {
-    map_grid[MAP_CENTER.x][MAP_CENTER.y] = TileType::LIGHT;
+    map_grid[(size_t)MAP_CENTER.x][(size_t)MAP_CENTER.y] = TileType::LIGHT;
 }
 
 glm::vec4 Map::ComputeColors(int i, int j)

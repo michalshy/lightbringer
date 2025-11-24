@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine_api.h"
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -29,21 +30,21 @@ class Camera
     float m_ViewportHeight;
 public:
     // New constructor for 2D Orthographic Camera
-    Camera(float width, float height); 
+    ENGINE_API Camera(float width, float height);
     
     // Core 2D movement methods
-    void ProcessKeyboard(Camera_Movement direction, float delta_time);
-    void ProcessMouseScroll(float yoffset, float mouse_x, float mouse_y);
+    ENGINE_API void ProcessKeyboard(Camera_Movement direction, float delta_time);
+    ENGINE_API void ProcessMouseScroll(float yoffset, float mouse_x, float mouse_y);
     
-    const glm::mat4& GetViewProjectionMatrix() const { return m_ViewProjectionMatrix; }
+    ENGINE_API const glm::mat4& GetViewProjectionMatrix() const { return m_ViewProjectionMatrix; }
     
-    void SetViewportSize(float width, float height);
+    ENGINE_API void SetViewportSize(float width, float height);
 
-    void SetPosition(glm::vec3 position);
-    const glm::vec3& GetPosition() const { return m_Position; }
+    ENGINE_API void SetPosition(glm::vec3 position);
+    ENGINE_API const glm::vec3& GetPosition() const { return m_Position; }
 
-    glm::mat4 GetViewMatrix();
-    glm::mat4 GetViewProjectionMatrix();
+    ENGINE_API glm::mat4 GetViewMatrix();
+    ENGINE_API glm::mat4 GetViewProjectionMatrix();
 
 private:
     void RecalculateViewProjectionMatrix();

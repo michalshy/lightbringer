@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include "scene/scene.h"
+#include "engine_api.h"
 
 struct Light
 {
@@ -15,13 +16,13 @@ struct Light
 class LightManager
 {
 public:
-    static bool Init();
-    static void Shutdown();
+    ENGINE_API static bool Init();
+    ENGINE_API static void Shutdown();
 
-    static void BeginFrame(Scene* scene);
+    ENGINE_API static void BeginFrame(Scene* scene);
 
     // Accessor for Renderer
-    static const std::vector<Light>& GetLights();
+    ENGINE_API static const std::vector<Light>& GetLights();
 
 private:
     struct LightererData

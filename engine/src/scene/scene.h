@@ -1,16 +1,17 @@
 #pragma once
 
 #include "entt/entt.hpp"
+#include "engine_api.h"
 
 class Entity;
 
 class Scene
 {
 public:
-    Scene();
-    ~Scene();
+    ENGINE_API Scene();
+    ENGINE_API ~Scene();
 
-    Entity CreateEntity();
+    ENGINE_API Entity CreateEntity();
      
     template<typename... ComponentTypes>
     auto View()

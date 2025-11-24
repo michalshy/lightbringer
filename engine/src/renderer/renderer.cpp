@@ -1,3 +1,4 @@
+﻿#include "engine_pch.h"
 #include "renderer.h"
 #if HW_WIN
     #include <glad/glad.h>
@@ -6,7 +7,8 @@
 #endif
 #include <glm/ext/matrix_clip_space.hpp>
 #include "light_manager.h"
-
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 std::unique_ptr<Renderer::RendererData> Renderer::s_Data = nullptr;
 
 struct QuadVertex
@@ -51,6 +53,7 @@ bool Renderer::Init(SDL_Window* window)
     glGenBuffers(1, &s_Data->QuadIBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_Data->QuadIBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 
     // geometry attributes
     glEnableVertexAttribArray(0); // position
@@ -119,6 +122,24 @@ void Renderer::Submit(const glm::mat4& transform, const glm::vec4& color)
     inst.Transform = transform;
     inst.Color = color;
     s_Data->InstanceBuffer.push_back(inst);
+}
+void Renderer::Submit(const glm::vec2& pos, const glm::vec2& scale, const glm::vec4& color)
+{
+    glm::mat4 m(1.0f);
+    m = glm::translate(m, glm::vec3(pos, 0.0f));
+    m = glm::scale(m, glm::vec3(scale, 1.0f));
+
+    Submit(m, color);
+}
+
+void Renderer::Submit(const glm::vec2& pos, const glm::vec2& scale, float rotation, const glm::vec4& color)
+{
+    glm::mat4 m(1.0f);
+    m = glm::translate(m, glm::vec3(pos, 0.0f));
+    m = glm::rotate(m, rotation, glm::vec3(0, 0, 1));
+    m = glm::scale(m, glm::vec3(scale, 1.0f));
+
+    Submit(m, color);
 }
 
 void Renderer::Flush()

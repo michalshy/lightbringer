@@ -1,8 +1,8 @@
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_keycode.h>
+#include <SDL_events.h>
+#include <SDL_keycode.h>
 #include <memory>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <SDL.h>
+#include <SDL_image.h>
 #include <spdlog/spdlog.h>
 #include "log.h"
 #include "app.h"
@@ -27,13 +27,13 @@ bool App::Init()
     if (!window || !window->Init())
         return false;
 
+    if (!Renderer::Init(window->GetWindowRaw()))
+        return false;
+    
     if (!game || !game->Init())
         return false;
 
     if (!LightManager::Init())
-        return false;
-
-    if (!Renderer::Init(window->GetWindowRaw()))
         return false;
 
     if (!timer || !timer->Init())

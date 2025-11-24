@@ -51,9 +51,9 @@ void Game::Draw()
     {
         glm::vec4 final_color = sprite.color;
         if(m_Debug.respect_lightmap)
-            final_color *= m_Map->GetLightMap()[transform.transform[3].y/TILE_SIZE][transform.transform[3].x/TILE_SIZE];
+            final_color *= m_Map->GetLightMap()[(size_t)transform.position.y/TILE_SIZE][(size_t)transform.position.x/TILE_SIZE];
         
-        Renderer::DrawQuad(transform.transform, final_color );
+        Renderer::DrawQuad(transform.GetMatrix(), final_color);
     }
 }
 

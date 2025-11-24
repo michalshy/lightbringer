@@ -19,3 +19,5 @@ imgui.ini
 
 .vscode
 *.exe
+
+libs/glad

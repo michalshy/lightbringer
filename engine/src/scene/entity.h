@@ -4,12 +4,13 @@
 #include "entt/entt.hpp"
 #include <cstdint>
 #include <utility>
+#include "engine_api.h"
 
 class Entity
 {
 public:
-    Entity() = default;
-    Entity(entt::entity handle, Scene* scene);
+    ENGINE_API Entity() = default;
+    ENGINE_API Entity(entt::entity handle, Scene* scene);
 
     template<class T, class... Args>
     T& AddComponent(Args&&... args)
@@ -35,7 +36,7 @@ public:
         m_Scene->m_Registry.remove<T>(m_EntityHandle);
     }
 
-    uint32_t GetHandle()
+    ENGINE_API uint32_t GetHandle()
     {
         return static_cast<uint32_t>(m_EntityHandle);
     }

@@ -12,20 +12,22 @@ class Window;
 class Renderer
 {
 public:
-    static bool Init(SDL_Window* window);
-    static void Shutdown();
+    ENGINE_API static bool Init(SDL_Window* window);
+    ENGINE_API static void Shutdown();
     
-    static void BeginFrame();
-    static void EndFrame();  
-    static void PostFrame();  
+    ENGINE_API static void BeginFrame();
+    ENGINE_API static void EndFrame();
+    ENGINE_API static void PostFrame();
     
-    static void SetClearColor(const glm::vec4& color);
-    static void SetProjectionMatrix(const glm::mat4& matrix);
+    ENGINE_API static void SetClearColor(const glm::vec4& color);
+    ENGINE_API static void SetProjectionMatrix(const glm::mat4& matrix);
 
-    static void Submit(const glm::mat4& transform, const glm::vec4& color);
-    static void Flush();
+    ENGINE_API static void Submit(const glm::mat4& transform, const glm::vec4& color);
+    ENGINE_API static void Submit(const glm::vec2& pos, const glm::vec2& scale, const glm::vec4& color);
+    ENGINE_API static void Submit(const glm::vec2& pos, const glm::vec2& scale, float rotation, const glm::vec4& color);
+    ENGINE_API static void Flush();
     
-    static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
+    ENGINE_API static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
 
 private:
     struct RendererData {

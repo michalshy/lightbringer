@@ -3,20 +3,26 @@ if os.target() == "linux" then
 end
 
 workspace "Lightbringer"
-    configurations { "debug", "release" }
+    configurations { "Debug", "Release" }
     startproject "Lightbringer"
     staticruntime "off"
-
     flags { "MultiProcessorCompile" }
 
     filter "configurations:Debug"
         defines { "DEBUG", "DEBUG_SHADER" }
         symbols "On"
 
-    filter "configurations:release"
+    filter "configurations:Release"
         defines { "RELEASE" }
         optimize "Speed"
         flags { "LinkTimeOptimization" }
+
+    -- Windows-only settings (do NOT affect Linux)
+    filter "system:windows"
+        architecture "x86_64"
+        system "windows"
+    
+    filter "*"
 
 project "Engine"
     kind "SharedLib"
@@ -54,26 +60,32 @@ project "Engine"
         "engine/src/timer/*.h",
         "engine/src/window/*.h",
     }
+    defines {
+        "ENGINE_BUILD"
+    }
     filter "system:windows"
+        pchheader "engine_pch.h"
+        pchsource "engine/src/engine_pch.cpp"
         libdirs {
             "libs/SDL2/build/%{cfg.buildcfg}",
             "libs/SDL2_image/build/%{cfg.buildcfg}"
         }
-
-    links { "GLM", "ImGui", "spdlog" }
-
+        
+        links { "GLM", "ImGui", "spdlog" }
+        
     filter "system:linux"
         links { "GL", "GLEW", "dl", "pthread", "SDL2", "SDL2_image" }
         defines { "HW_LINUX" }
-
+        
     filter "system:windows"
         links { "GLAD" }
         defines { "HW_WIN" }
+    
 
-    filter { "system:windows", "configurations:debug" }
+    filter { "system:windows", "configurations:Debug" }
         links { "SDL2d", "SDL2maind", "SDL2_imaged" }
 
-    filter { "system:windows", "configurations:release" }
+    filter { "system:windows", "configurations:Release" }
         links { "SDL2", "SDL2main", "SDL2_image" }
 
     filter "system:linux"
@@ -109,7 +121,7 @@ project "Lightbringer"
         "libs/spdlog/include"
     }
 
-    links { "engine", "GLM", "ImGui", "spdlog" }
+    links { "Engine", "GLM", "ImGui", "spdlog" }
 
     files { "game/src/**.cpp", "game/src/**.h" }
     
@@ -127,10 +139,10 @@ project "Lightbringer"
         links { "GLAD" }
         defines { "HW_WIN" }
 
-    filter { "system:windows", "configurations:debug" }
+    filter { "system:windows", "configurations:Debug" }
         links { "SDL2d", "SDL2maind", "SDL2_imaged" }
 
-    filter { "system:windows", "configurations:release" }
+    filter { "system:windows", "configurations:Release" }
         links { "SDL2", "SDL2main", "SDL2_image" }
 
     filter "system:linux"
@@ -142,13 +154,30 @@ project "Lightbringer"
     
     filter "system:windows"
         postbuildcommands {
-            '{COPY} res "%{cfg.targetdir}/res"'
+            -- Copy game resources
+            '{COPY} res "%{cfg.targetdir}/res"',
+
+            -- Copy Engine DLL
+            '{COPY} "%{wks.location}/build/engine/%{cfg.buildcfg}/Engine.dll" "%{cfg.targetdir}"',
+
+            -- Copy SDL DLLs
+            '{COPY} "%{wks.location}/libs/SDL2/build/%{cfg.buildcfg}/*.dll" "%{cfg.targetdir}"',
+            '{COPY} "%{wks.location}/libs/SDL2_image/build/%{cfg.buildcfg}/*.dll" "%{cfg.targetdir}"'
         }
 
     filter "system:linux"
         postbuildcommands {
             '{COPY} res/ "%{cfg.targetdir}/res"'
         }
+
+    filter "action:vs*"
+        buildoptions { "/utf-8" }
+    
+    filter "configurations:Debug"
+        symbols "On"
+        optimize "Debug"
+    filter "configurations:Debug"
+        buildoptions { "/Oy-" }
         
 include "libs/glm.lua"
 include "libs/imgui.lua"
