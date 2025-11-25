@@ -36,13 +36,12 @@ private:
     void ClearMove();
     struct PlayerState
     {
-        float movement_speed{ 5.0f };
+        float movement_speed{ 50.0f };
         bool ignore_movement{ false };
         glm::vec3 queued_move{ 0.0f, 0.0f, 0.0f };
     } m_State;
     
     void ProcessKeyboard(PlayerMovement dir, float delta_time);
-    void CheckCollision(glm::vec3 playerPos, glm::ivec2 playerSize, glm::vec3 otherPos, glm::ivec2 otherSize);
 public:
     PlayerState GetState() { return m_State; }
 };

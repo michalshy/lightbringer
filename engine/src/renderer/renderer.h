@@ -30,6 +30,7 @@ public:
     ENGINE_API static void DrawFullscreenQuad(uint32_t texture);
     
     ENGINE_API static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
+    ENGINE_API static void DrawQuad(const glm::vec3& pos, const glm::vec3& rot, const glm::vec4& color);
 
 private:
     struct RendererData {

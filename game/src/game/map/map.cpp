@@ -9,6 +9,7 @@
 #include <memory>
 #include <random>
 #include "renderer/light_manager.h"
+#include "renderer/renderer.h"
 #include "scene/components.h"
 #include "scene/entity.h"
 #include "scene/scene.h"
@@ -22,17 +23,18 @@ constexpr glm::ivec3 STARTING_POS{0,0,0};
 constexpr float ALLY_CHANCE = 0.005f;
 constexpr float RESOURCE_CHANCE = 0.009f;
 
+
 Map::Map()
 {
-    for(int y = 0; y < GRID_DIMENSIONS.y; y++)
+    for (int y = 0; y < GRID_DIMENSIONS.y; y++)
     {
         map_grid.push_back({});
-        for(int x = 0; x < GRID_DIMENSIONS.x; x++)
+        for (int x = 0; x < GRID_DIMENSIONS.x; x++)
         {
-            map_grid[y].push_back(TileType::OBSTACLE);
+            map_grid[y].push_back(Tile{});
         }
-    } 
-    light_map.assign(map_grid.size(), std::vector<float>(map_grid[0].size(), 0.0f)); 
+    }
+    light_map.assign(map_grid.size(), std::vector<float>(map_grid[0].size(), 0.0f));
 }
 
 bool Map::Init(std::shared_ptr<Scene> scene)
@@ -62,8 +64,8 @@ glm::vec3 Map::CheckBounds(Player& player)
 
     for (int y = minY; y <= maxY; ++y)
     {
-        if (map_grid[y][maxX] == TileType::OBSTACLE) { mask.x = 0.0f; break; }
-        if (map_grid[y][minX] == TileType::OBSTACLE) { mask.x = 0.0f; break; }
+        if (map_grid[y][maxX].type == TileType::OBSTACLE) { mask.x = 0.0f; break; }
+        if (map_grid[y][minX].type == TileType::OBSTACLE) { mask.x = 0.0f; break; }
     }
 
     // --- Y AXIS ---
@@ -74,8 +76,8 @@ glm::vec3 Map::CheckBounds(Player& player)
 
     for (int x = minX; x <= maxX; ++x)
     {
-        if (map_grid[maxY][x] == TileType::OBSTACLE) { mask.y = 0.0f; break; }
-        if (map_grid[minY][x] == TileType::OBSTACLE) { mask.y = 0.0f; break; }
+        if (map_grid[maxY][x].type == TileType::OBSTACLE) { mask.y = 0.0f; break; }
+        if (map_grid[minY][x].type == TileType::OBSTACLE) { mask.y = 0.0f; break; }
     }
 
     return mask;
@@ -97,7 +99,8 @@ bool Map::InitMap()
 
     InitLight();
 
-    DefineEntites();
+    DefineEntities();
+
     return true;
 }
 
@@ -110,13 +113,13 @@ void Map::InitLight()
 bool Map::Birth(int y, int x)
 {
     int neighbours = 0;
-    if(map_grid[y-1][x] == TileType::OBSTACLE)
+    if(map_grid[y-1][x].type == TileType::OBSTACLE)
         ++neighbours;
-    if(map_grid[y][x-1] == TileType::OBSTACLE)
+    if(map_grid[y][x-1].type == TileType::OBSTACLE)
         ++neighbours;
-    if(map_grid[y][x+1] == TileType::OBSTACLE)
+    if(map_grid[y][x+1].type == TileType::OBSTACLE)
         ++neighbours;
-    if(map_grid[y+1][x] == TileType::OBSTACLE)
+    if(map_grid[y+1][x].type == TileType::OBSTACLE)
         ++neighbours;
 
     return neighbours >= BIRTH_THRESHOLD;
@@ -125,38 +128,16 @@ bool Map::Birth(int y, int x)
 bool Map::Survival(int y, int x)
 {
     int neighbours = 0;
-    if(map_grid[y-1][x] == TileType::OBSTACLE)
+    if(map_grid[y-1][x].type == TileType::OBSTACLE)
         ++neighbours;
-    if(map_grid[y][x-1] == TileType::OBSTACLE)
+    if(map_grid[y][x-1].type == TileType::OBSTACLE)
         ++neighbours;
-    if(map_grid[y][x+1] == TileType::OBSTACLE)
+    if(map_grid[y][x+1].type == TileType::OBSTACLE)
         ++neighbours;
-    if(map_grid[y+1][x] == TileType::OBSTACLE)
+    if(map_grid[y+1][x].type == TileType::OBSTACLE)
         ++neighbours;
 
     return neighbours >= SURVIVAL_THRESHOLD;
-}
-
-void Map::DefineEntites()
-{
-    glm::vec3 start_position = STARTING_POS;
-    for(int i = 0; i < (int)map_grid.size(); i++)
-    {
-        for(int j = 0; j < (int)map_grid[i].size(); j++)
-        {
-            Entity quad = m_Scene->CreateEntity();
-            quad.AddComponent<CoTransform>();
-            quad.GetComponent<CoTransform>().position = start_position + glm::vec3(TILE_SIZE / 2.0f, TILE_SIZE / 2.0f, 0.0f);
-            quad.GetComponent<CoTransform>().scale = { TILE_SIZE, TILE_SIZE, 1.0f };
-            
-            glm::vec4 color = ComputeColors(i, j);
-                
-            quad.AddComponent<CoSprite>(color);
-            quad.AddComponent<CoMapTile>(i,j);
-            start_position += glm::vec3(TILE_SIZE, 0, 0);
-        }
-        start_position += glm::vec3(-start_position.x, TILE_SIZE, 0);
-    }
 }
 
 void Map::RunCycle()
@@ -175,6 +156,36 @@ void Map::RunCycle()
 void Map::Update()
 {
     UpdateLightMaps();
+}
+
+void Map::Draw()
+{
+    for (const auto& row : map_grid)
+    {
+        for (const auto& col : row)
+        {
+            glm::vec4 final_color = col.color;
+            final_color *= light_map[(size_t)col.pos.y / TILE_SIZE][(size_t)col.pos.x / TILE_SIZE];
+            Renderer::DrawQuad(col.pos, col.scale, col.color);
+        }
+    }
+}
+
+void Map::DefineEntities()
+{
+    glm::vec3 start_position = STARTING_POS;
+    for (int i = 0; i < (int)map_grid.size(); i++)
+    {
+        for (int j = 0; j < (int)map_grid[i].size(); j++)
+        {
+            map_grid[i][j].pos = start_position + glm::vec3(TILE_SIZE / 2.0f, TILE_SIZE / 2.0f, 0.0f);
+            map_grid[i][j].scale = { TILE_SIZE, TILE_SIZE, 1.0f };
+            map_grid[i][j].color = ComputeColors(i, j);
+
+            start_position += glm::vec3(TILE_SIZE, 0, 0);
+        }
+        start_position += glm::vec3(-start_position.x, TILE_SIZE, 0);
+    }
 }
 
 void Map::UpdateLightMaps()
@@ -224,7 +235,7 @@ void Map::UpdateLightMap(
             {
                 if (y0 >= 0 && x0 >= 0 && y0 < height && x0 < width)
                 {
-                    if (map_grid[y0][x0] == TileType::OBSTACLE)
+                    if (map_grid[y0][x0].type == TileType::OBSTACLE)
                     {
                         blocked = true;
                         break;
@@ -255,14 +266,14 @@ void Map::Cycle()
     {
         for(int x = 1; x < GRID_DIMENSIONS.x - 1; x++)
         {
-            map_grid[y][x] = dist(rng) > WALL_CHANCE ? TileType::NONOBSTACLE : TileType::OBSTACLE;
+            map_grid[y][x].type = dist(rng) > WALL_CHANCE ? TileType::NONOBSTACLE : TileType::OBSTACLE;
         }
     } 
     for(int i = 0; i < CASTLE_SIZE; i++)
     {
         for(int j = 0; j < CASTLE_SIZE; j++)
         {
-            map_grid[GRID_DIMENSIONS.y/2 - CASTLE_SIZE/2 + i][GRID_DIMENSIONS.x/2 - CASTLE_SIZE/2 + j] = TileType::SPECIAL; // means special
+            map_grid[GRID_DIMENSIONS.y/2 - CASTLE_SIZE/2 + i][GRID_DIMENSIONS.x/2 - CASTLE_SIZE/2 + j].type = TileType::SPECIAL; // means special
         }   
     }
 
@@ -272,14 +283,14 @@ void Map::Cycle()
         {
             for(int x = 1; x < GRID_DIMENSIONS.x - 1; x++)
             {
-                if(map_grid[y][x] == TileType::SPECIAL) continue;
+                if(map_grid[y][x].type == TileType::SPECIAL) continue;
                 if(!Survival(y,x))
                 {
-                    map_grid[y][x] = TileType::NONOBSTACLE;
+                    map_grid[y][x].type = TileType::NONOBSTACLE;
                 }
                 else if(Birth(y, x))
                 {
-                    map_grid[y][x] = TileType::OBSTACLE;
+                    map_grid[y][x].type = TileType::OBSTACLE;
                 }
             }
         } 
@@ -293,12 +304,12 @@ void Map::Cycle()
         {
             for(int x = 1; x < GRID_DIMENSIONS.x - 1; x++)
             {
-                if(map_grid[y][x] == TileType::SPECIAL) continue;
+                if(map_grid[y][x].type == TileType::SPECIAL) continue;
 
                 if(!Survival(y,x))
-                    next_grid[y][x] = TileType::NONOBSTACLE;
+                    next_grid[y][x].type = TileType::NONOBSTACLE;
                 else if(Birth(y, x))
-                    next_grid[y][x] = TileType::OBSTACLE;
+                    next_grid[y][x].type = TileType::OBSTACLE;
             }
         }
 
@@ -326,10 +337,10 @@ void Map::ComputeAllies()
     {
         for(auto& column : row)
         {
-            if(column == TileType::NONOBSTACLE)
+            if(column.type == TileType::NONOBSTACLE)
             {
                 if(dist(rng) < ALLY_CHANCE)
-                    column = TileType::ALLY_SPAWNER;
+                    column.type = TileType::ALLY_SPAWNER;
             }
         }
     }
@@ -343,10 +354,10 @@ void Map::ComputeResources()
     {
         for(auto& column : row)
         {
-            if(column == TileType::NONOBSTACLE || column == TileType::SPECIAL)
+            if(column.type == TileType::NONOBSTACLE || column.type == TileType::SPECIAL)
             {
                 if(dist(rng) < RESOURCE_CHANCE)
-                    column = TileType::RESOURCE_SPAWNER;            
+                    column.type = TileType::RESOURCE_SPAWNER;
             }
         }
     }
@@ -354,14 +365,14 @@ void Map::ComputeResources()
 
 void Map::ComputeLight()
 {
-    map_grid[(size_t)MAP_CENTER.x][(size_t)MAP_CENTER.y] = TileType::LIGHT;
+    map_grid[(size_t)MAP_CENTER.x][(size_t)MAP_CENTER.y].type = TileType::LIGHT;
 }
 
 glm::vec4 Map::ComputeColors(int i, int j)
 {
     glm::vec4 color = glm::vec4{1.0f};
 
-    switch (map_grid[i][j]) {
+    switch (map_grid[i][j].type) {
         case TileType::OBSTACLE:
             color = glm::vec4{0.0f, 0.0f, 0.0f, 1.0f};
             break;

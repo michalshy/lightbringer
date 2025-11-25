@@ -9,12 +9,23 @@
 #include <vector>
 #include "game/game_components.h"
 #include "game/player/player.h"
+#include "glm/glm.hpp"
+
+struct Tile
+{
+    glm::vec3 pos{ 0.0f };
+    glm::vec3 scale{ 0.0f };
+    glm::vec3 rot{ 0.0f };
+    glm::vec4 color{ 0.0f }; // later replaced by texture
+    TileType type{ TileType::OBSTACLE };
+};
+
 class Map
 {
     // Leaving int here since 
     // it might be used as different types of obstacles
-    int seed;
-    std::vector<std::vector<TileType>> map_grid;
+    int seed{ 0 };
+    std::vector<std::vector<Tile>> map_grid;
     std::vector<std::vector<float>> light_map;
     std::shared_ptr<Scene> m_Scene;
     std::mt19937 rng;
@@ -27,8 +38,10 @@ public:
     int GetSeed();
     void RunCycle();
     void Update();
+    void Draw();
     const std::vector<std::vector<float>>& GetLightMap() { return light_map; }
 private:
+    void DefineEntities();
     void UpdateLightMaps();
     void UpdateLightMap(const glm::vec2& light_pos_world, float radius, float intensity = 1.0f); 
     void Cycle();
@@ -36,7 +49,6 @@ private:
     void InitLight();
     bool Birth(int y, int x);
     bool Survival(int y, int x);
-    void DefineEntites();
     void ComputeEnemies();
     void ComputeAllies();
     void ComputeResources();
