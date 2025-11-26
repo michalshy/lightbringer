@@ -12,6 +12,6 @@ void HeartLight::Init(glm::ivec2 pos)
 {
     m_HeartEntity = m_Scene->CreateEntity();
     m_HeartEntity.AddComponent<CoTransform>();
-    m_HeartEntity.GetComponent<CoTransform>().position = glm::vec3(TILE_SIZE, TILE_SIZE, 1.0f);
+    m_HeartEntity.GetComponent<CoTransform>().position = glm::vec3(GRID_DIMENSIONS.x * TILE_SIZE / 2, GRID_DIMENSIONS.y * TILE_SIZE / 2, 0.1f);
     m_HeartEntity.AddComponent<CoLight>(CoLight{glm::vec3{1.0f, 1.0f, 0.6f}, 500.0f, 0.7f, true});
 }
