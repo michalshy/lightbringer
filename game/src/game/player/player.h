@@ -7,8 +7,6 @@
 #include <glm/fwd.hpp>
 #include <memory>
 
-constexpr float NEXT_MOVE_MULT = 10.0f;
-
 enum class PlayerMovement {
 	UP,
 	DOWN,
@@ -27,7 +25,7 @@ public:
     void HandleCamera(float delta_time);
     void ToggleInput(bool state);
     const glm::vec3 GetPosition() { return m_PlayerEntity.GetComponent<CoTransform>().position; }
-    const glm::vec3 GetNexPosition() { return glm::vec3{m_PlayerEntity.GetComponent<CoTransform>().position} + NEXT_MOVE_MULT * m_State.queued_move; }
+    const glm::vec3 GetNexPosition() { return glm::vec3{m_PlayerEntity.GetComponent<CoTransform>().position} + m_State.queued_move; }
     const glm::ivec2 GetSize();
     void UpdateInternal(float delta_time);
     void UpdateMove(glm::vec3 mask);

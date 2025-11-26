@@ -11,7 +11,7 @@ layout(location = 6) in vec4 a_InstanceColor;
 
 out vec2 v_TexCoord;
 out vec4 v_Color;
-out vec3 v_WorldPos; // <-- add this
+out vec3 v_WorldPos; 
 
 uniform mat4 u_ViewProjection;
 

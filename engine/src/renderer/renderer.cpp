@@ -208,7 +208,7 @@ void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
     Submit(transform, color);
 }
 
-void Renderer::DrawQuad(const glm::vec3& pos, const glm::vec3& rot, const glm::vec4& color)
+void Renderer::DrawQuad(const glm::vec3& pos, const glm::vec3& scale, const glm::vec4& color)
 {
-    Submit(pos, rot, color);
+    Submit(pos, scale, color);
 }

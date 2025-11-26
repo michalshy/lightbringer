@@ -11,6 +11,9 @@
 #include "game/player/player.h"
 #include "glm/glm.hpp"
 
+// This shouldnt be component in my opinion
+// As we need to check neighbours of tiles in automata generation, also lots of things
+// depends on the order :)
 struct Tile
 {
     glm::vec3 pos{ 0.0f };
@@ -49,6 +52,7 @@ private:
     void InitLight();
     bool Birth(int y, int x);
     bool Survival(int y, int x);
+    void ComputeColors();
     void ComputeEnemies();
     void ComputeAllies();
     void ComputeResources();

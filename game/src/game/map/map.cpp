@@ -1,4 +1,4 @@
-#include "map.h"
+﻿#include "map.h"
 #include "game/game_components.h"
 #include "game/light/light.h"
 #include "game/player/player.h"
@@ -69,8 +69,8 @@ glm::vec3 Map::CheckBounds(Player& player)
     }
 
     // --- Y AXIS ---
-    minX = static_cast<int>((player.GetPosition().x - size.x/2.0) / TILE_SIZE);
-    maxX = static_cast<int>((player.GetPosition().x + size.x/2.0) / TILE_SIZE);
+    minX = static_cast<int>((player.GetPosition().x - size.x/2.0f) / TILE_SIZE);
+    maxX = static_cast<int>((player.GetPosition().x + size.x/2.0f) / TILE_SIZE);
     minY = static_cast<int>((next.y - size.y/2.0) / TILE_SIZE);
     maxY = static_cast<int>((next.y + size.y/2.0) / TILE_SIZE);
 
@@ -166,7 +166,7 @@ void Map::Draw()
         {
             glm::vec4 final_color = col.color;
             final_color *= light_map[(size_t)col.pos.y / TILE_SIZE][(size_t)col.pos.x / TILE_SIZE];
-            Renderer::DrawQuad(col.pos, col.scale, col.color);
+            Renderer::DrawQuad(col.pos, col.scale, final_color);
         }
     }
 }
@@ -315,11 +315,22 @@ void Map::Cycle()
 
         map_grid = next_grid; // replace after whole step finished
     }
-
+    ComputeColors();
     ComputeAllies();
     ComputeEnemies();
     ComputeResources();
     ComputeLight();
+}
+
+void Map::ComputeColors()
+{
+    for (int y = 1; y < GRID_DIMENSIONS.y - 1; y++)
+    {
+        for (int x = 1; x < GRID_DIMENSIONS.x - 1; x++)
+        {
+            map_grid[y][x].color = ComputeColors(y,x);
+        }
+    }
 }
 
 void Map::ComputeEnemies()

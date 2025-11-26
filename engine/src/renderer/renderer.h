@@ -30,7 +30,7 @@ public:
     ENGINE_API static void DrawFullscreenQuad(uint32_t texture);
     
     ENGINE_API static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
-    ENGINE_API static void DrawQuad(const glm::vec3& pos, const glm::vec3& rot, const glm::vec4& color);
+    ENGINE_API static void DrawQuad(const glm::vec3& pos, const glm::vec3& scale, const glm::vec4& color);
 
 private:
     struct RendererData {
@@ -39,7 +39,6 @@ private:
         Shader QuadShader;
         glm::mat4 ProjectionMatrix = glm::mat4(1.0f);
 
-        // instance data (vector of small struct)
         struct InstanceData {
             glm::mat4 Transform;
             glm::vec4 Color;
