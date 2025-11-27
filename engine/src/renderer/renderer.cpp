@@ -82,6 +82,10 @@ bool Renderer::Init(SDL_Window* window)
     glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(RendererData::InstanceData), (void*)(4 * vec4Size));
     glVertexAttribDivisor(6, 1);
 
+    glEnableVertexAttribArray(7);
+    glVertexAttribIPointer(7, 1, GL_INT, sizeof(RendererData::InstanceData), (void*)(offsetof(RendererData::InstanceData, TextureId)));
+    glVertexAttribDivisor(7, 1);
+
     glBindVertexArray(0);
 
     s_Data->QuadShader = Shader("res/shaders/inst.vert", "res/shaders/inst.frag");

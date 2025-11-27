@@ -8,6 +8,8 @@ in vec3 v_WorldPos;
 // Support up to N lights
 #define MAX_LIGHTS 16
 
+uniform sampler2D u_Texture;
+
 uniform int u_NumLights;
 uniform vec2 u_LightPos[MAX_LIGHTS];
 uniform vec3 u_LightColor[MAX_LIGHTS];
@@ -15,18 +17,22 @@ uniform float u_LightRadius[MAX_LIGHTS];
 
 void main()
 {
-    vec3 ambient = vec3(0.15); // tweak ambient
-    vec3 lit = v_Color.rgb * ambient;
 
+    vec4 texColor = texture(u_Texture, v_TexCoord);
+    if (texColor.a <= 0.01) discard;   // optional: discard fully transparent pixels
+    vec3 baseColor = texColor.rgb * v_Color.rgb;
+    vec3 ambient = vec3(0.15); // tweak ambient
+    vec3 lit = ambient;
     for (int i = 0; i < u_NumLights; i++)
     {
         float radius = max(u_LightRadius[i], 0.0001);
         float dist = length(v_WorldPos.xy - u_LightPos[i]);
+
         float t = clamp(dist / radius, 0.0, 1.0);
         float intensity = 1.0 - smoothstep(0.0, 1.0, t);
 
-        lit += v_Color.rgb * u_LightColor[i] * intensity;
+        lit += baseColor * u_LightColor[i] * intensity;
     }
 
-    FragColor = vec4(lit, v_Color.a);
+    FragColor = vec4(lit, texColor.a * v_Color.a);
 }

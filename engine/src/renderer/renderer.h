@@ -42,6 +42,7 @@ private:
         struct InstanceData {
             glm::mat4 Transform;
             glm::vec4 Color;
+            int TextureId{ -1 };
         };
         std::vector<InstanceData> InstanceBuffer;
     };
