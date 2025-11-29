@@ -29,8 +29,8 @@ run_game() {
 
 case $1 in
     generate) generate;;
-    debug) build "Debug";;
-    release) build "Release";;
+    debug) build "debug";;
+    release) build "release";;
     run-debug) run_game "Debug";;
     run-release) run_game "Release";;
     *)
