@@ -160,13 +160,15 @@ void Map::Update()
 
 void Map::Draw()
 {
+    glm::vec4 rect(0.0f, 0.0f, 1.0f, 1.0f); // whole texture
+
     for (const auto& row : map_grid)
     {
         for (const auto& col : row)
         {
             glm::vec4 final_color = col.color;
             final_color *= light_map[(size_t)col.pos.y / TILE_SIZE][(size_t)col.pos.x / TILE_SIZE];
-            Renderer::DrawQuad(col.pos, col.scale, final_color);
+            Renderer::DrawQuad(col.pos, col.scale, final_color, rect);
         }
     }
 }

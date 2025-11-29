@@ -66,6 +66,7 @@ bool Window::Init()
             glGetError();
         }
     }
+    LOG_DEBUG("Initialized window");
     return true;
 }
 

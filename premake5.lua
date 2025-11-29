@@ -176,8 +176,8 @@ project "Lightbringer"
     filter "configurations:Debug"
         symbols "On"
         optimize "Debug"
-    filter "configurations:Debug"
-        buildoptions { "/Oy-" }
+    filter { "system:windows", "configurations:Debug" }
+        buildoptions { "/Oy-" } 
         
 include "libs/glm.lua"
 include "libs/imgui.lua"

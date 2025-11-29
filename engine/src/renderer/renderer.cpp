@@ -1,4 +1,6 @@
 ﻿#include "engine_pch.h"
+#include "log.h"
+#include <cstdint>
 #include "renderer.h"
 #if HW_WIN
     #include <glad/glad.h>
@@ -9,6 +11,7 @@
 #include "light_manager.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "SDL2/SDL_image.h"
 std::unique_ptr<Renderer::RendererData> Renderer::s_Data = nullptr;
 
 struct QuadVertex
@@ -17,21 +20,71 @@ struct QuadVertex
     glm::vec4 Color;
 };
 
+uint32_t Renderer::CreateTexture(const std::string& path)
+{
+    // load using SDL_image
+    SDL_Surface* surface = IMG_Load(path.c_str());
+    if (!surface)
+    {
+        return 0;
+    }
+
+    GLenum format;
+    if (surface->format->BytesPerPixel == 4)
+    {
+        format = (surface->format->Rmask == 0x000000ff) 
+                 ? GL_RGBA 
+                 : GL_BGRA;
+    }
+    else if (surface->format->BytesPerPixel == 3)
+    {
+        format = (surface->format->Rmask == 0x000000ff) 
+                 ? GL_RGB 
+                 : GL_BGR;
+    }
+    else
+    {
+        SDL_FreeSurface(surface);
+        return 0;
+    }
+
+    GLuint texID;
+    glGenTextures(1, &texID);
+    glBindTexture(GL_TEXTURE_2D, texID);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
+                 surface->w, surface->h, 0,
+                 format, GL_UNSIGNED_BYTE, surface->pixels);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    SDL_FreeSurface(surface);
+
+    return texID;
+}
+
 void Renderer::SetupOpenGLState()
 {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     glEnable(GL_DEPTH_TEST);
-
     glEnable(GL_MULTISAMPLE);
 }
 
 bool Renderer::Init(SDL_Window* window)
 {
+    IMG_Init(IMG_INIT_PNG);
+
     s_Data = std::make_unique<RendererData>();
     s_Data->window_raw = window;
     if (!window) return false;
+
+    s_Data->TexAtlas = CreateTexture("res/sprites/sheets/tileset.png");
 
     // Create quad geometry (4 verts)
     float vertices[] = {
@@ -66,7 +119,7 @@ bool Renderer::Init(SDL_Window* window)
     glBindBuffer(GL_ARRAY_BUFFER, s_Data->InstanceVBO);
     // allocate some initial capacity (we'll use dynamic streaming)
     size_t initialCapacity = 10000; // number of instances capacity
-    glBufferData(GL_ARRAY_BUFFER, initialCapacity * (sizeof(glm::mat4) + sizeof(glm::vec4)), nullptr, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, initialCapacity * sizeof(RendererData::InstanceData), nullptr, GL_DYNAMIC_DRAW);
 
     // set up instance attributes: mat4 occupies 4 attribute slots (2..5), color -> 6
     // note: attribute locations must match shader binding
@@ -82,8 +135,11 @@ bool Renderer::Init(SDL_Window* window)
     glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(RendererData::InstanceData), (void*)(4 * vec4Size));
     glVertexAttribDivisor(6, 1);
 
+    // UVRect → location 7
     glEnableVertexAttribArray(7);
-    glVertexAttribIPointer(7, 1, GL_INT, sizeof(RendererData::InstanceData), (void*)(offsetof(RendererData::InstanceData, TextureId)));
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE,
+                        sizeof(RendererData::InstanceData),
+                        (void*)(5 * vec4Size));
     glVertexAttribDivisor(7, 1);
 
     glBindVertexArray(0);
@@ -101,8 +157,12 @@ void Renderer::BeginFrame()
     glViewport(0,0,display_w,display_h);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, s_Data->TexAtlas);
+
     s_Data->QuadShader.Use(); // <-- bind shader before uniforms
     s_Data->QuadShader.SetMat4("u_ViewProjection", s_Data->ProjectionMatrix);
+    s_Data->QuadShader.SetInt("u_Texture", 0);
 
     auto& lights = LightManager::GetLights();
     int numLights = glm::min((int)lights.size(), 16); // MAX_LIGHTS
@@ -120,30 +180,31 @@ void Renderer::BeginFrame()
     s_Data->InstanceBuffer.clear();
 }
 
-void Renderer::Submit(const glm::mat4& transform, const glm::vec4& color)
+void Renderer::Submit(const glm::mat4& transform, const glm::vec4& color, const glm::vec4& rect)
 {
     RendererData::InstanceData inst;
     inst.Transform = transform;
     inst.Color = color;
+    inst.TexRect = rect;
     s_Data->InstanceBuffer.push_back(inst);
 }
-void Renderer::Submit(const glm::vec2& pos, const glm::vec2& scale, const glm::vec4& color)
+void Renderer::Submit(const glm::vec2& pos, const glm::vec2& scale, const glm::vec4& color, const glm::vec4& rect)
 {
     glm::mat4 m(1.0f);
     m = glm::translate(m, glm::vec3(pos, 0.0f));
     m = glm::scale(m, glm::vec3(scale, 1.0f));
 
-    Submit(m, color);
+    Submit(m, color, rect);
 }
 
-void Renderer::Submit(const glm::vec2& pos, const glm::vec2& scale, float rotation, const glm::vec4& color)
+void Renderer::Submit(const glm::vec2& pos, const glm::vec2& scale, float rotation, const glm::vec4& color, const glm::vec4& rect)
 {
     glm::mat4 m(1.0f);
     m = glm::translate(m, glm::vec3(pos, 0.0f));
     m = glm::rotate(m, rotation, glm::vec3(0, 0, 1));
     m = glm::scale(m, glm::vec3(scale, 1.0f));
 
-    Submit(m, color);
+    Submit(m, color, rect);
 }
 
 void Renderer::Flush()
@@ -190,13 +251,6 @@ void Renderer::SetProjectionMatrix(const glm::mat4& matrix)
     s_Data->ProjectionMatrix = matrix;
 }
 
-void Renderer::DrawFullscreenQuad(uint32_t texture)
-{
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glm::mat4 identity(1.0f);
-    Submit(identity, glm::vec4(1.0f));  // use textured shader
-}
-
 void Renderer::EndFrame()
 {
     Flush();
@@ -207,12 +261,28 @@ void Renderer::PostFrame()
     SDL_GL_SwapWindow(s_Data->window_raw);
 }
 
-void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
+void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& rect)
 {
-    Submit(transform, color);
+    Submit(transform, glm::vec4(1.0f), rect);
 }
 
-void Renderer::DrawQuad(const glm::vec3& pos, const glm::vec3& scale, const glm::vec4& color)
+void Renderer::DrawQuad(const glm::vec2& pos,
+                        const glm::vec2& scale,
+                        const glm::vec4& rect)
 {
-    Submit(pos, scale, color);
+    glm::mat4 m(1.0f);
+    m = glm::translate(m, glm::vec3(pos, 0.0f));
+    m = glm::scale(m, glm::vec3(scale, 1.0f));
+
+    Submit(m, glm::vec4(1.0f), rect); // no tint
+}
+
+void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color, const glm::vec4& rect)
+{
+    Submit(transform, color, rect);
+}
+
+void Renderer::DrawQuad(const glm::vec3& pos, const glm::vec3& scale, const glm::vec4& color, const glm::vec4& rect)
+{
+    Submit(pos, scale, color, rect);
 }

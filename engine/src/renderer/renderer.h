@@ -22,15 +22,17 @@ public:
     ENGINE_API static void SetClearColor(const glm::vec4& color);
     ENGINE_API static void SetProjectionMatrix(const glm::mat4& matrix);
 
-    ENGINE_API static void Submit(const glm::mat4& transform, const glm::vec4& color);
-    ENGINE_API static void Submit(const glm::vec2& pos, const glm::vec2& scale, const glm::vec4& color);
-    ENGINE_API static void Submit(const glm::vec2& pos, const glm::vec2& scale, float rotation, const glm::vec4& color);
+    ENGINE_API static uint32_t CreateTexture(const std::string& file);
+
+    ENGINE_API static void Submit(const glm::mat4& transform, const glm::vec4& color, const glm::vec4& rect);
+    ENGINE_API static void Submit(const glm::vec2& pos, const glm::vec2& scale, const glm::vec4& color, const glm::vec4& rect);
+    ENGINE_API static void Submit(const glm::vec2& pos, const glm::vec2& scale, float rotation, const glm::vec4& color, const glm::vec4& rect);
     ENGINE_API static void Flush();
 
-    ENGINE_API static void DrawFullscreenQuad(uint32_t texture);
-    
-    ENGINE_API static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
-    ENGINE_API static void DrawQuad(const glm::vec3& pos, const glm::vec3& scale, const glm::vec4& color);
+    ENGINE_API static void DrawQuad(const glm::mat4& transform, const glm::vec4& rect);
+    ENGINE_API static void DrawQuad(const glm::vec2& pos, const glm::vec2& scale, const glm::vec4& rect);
+    ENGINE_API static void DrawQuad(const glm::mat4& transform, const glm::vec4& color, const glm::vec4& rect);
+    ENGINE_API static void DrawQuad(const glm::vec3& pos, const glm::vec3& scale, const glm::vec4& color, const glm::vec4& rect);
 
 private:
     struct RendererData {
@@ -42,9 +44,10 @@ private:
         struct InstanceData {
             glm::mat4 Transform;
             glm::vec4 Color;
-            int TextureId{ -1 };
+            glm::vec4 TexRect;
         };
         std::vector<InstanceData> InstanceBuffer;
+        uint32_t TexAtlas;
     };
     static std::unique_ptr<RendererData> s_Data;
 

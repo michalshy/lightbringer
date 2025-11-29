@@ -29,9 +29,9 @@ run_game() {
 
 case $1 in
     generate) generate;;
-    debug) build "debug";;
-    release) build "release";;
-    run-debug) run_game "debug";;
-    run-release) run_game "release";;
+    debug) build "Debug";;
+    release) build "Release";;
+    run-debug) run_game "Debug";;
+    run-release) run_game "Release";;
     *)
 esac
