@@ -428,31 +428,31 @@ glm::vec4 Map::ComputeTextures(int i, int j)
 
     switch (map_grid[i][j].type) {
         case TileType::OBSTACLE:
-            rect = ResourceManager::GetSprite(TILESET, 0);
+            rect = ResourceManager::GetSprite(TILESET, 16);
             break;
 
         case TileType::NONOBSTACLE:
-            rect = ResourceManager::GetSprite(TILESET, 16);
+            rect = ResourceManager::GetSprite(TILESET, 412);
             break;
 
         case TileType::SPECIAL:
-            rect = ResourceManager::GetSprite(TILESET, 16);
+            rect = ResourceManager::GetSprite(TILESET, 412);
             break;
 
         case TileType::ALLY_SPAWNER:
-            rect = ResourceManager::GetSprite(TILESET, 3);
+            rect = ResourceManager::GetSprite(TILESET, 16);
             break;
 
         case TileType::ENEMY_SPAWNER:
-            rect = ResourceManager::GetSprite(TILESET, 4);
+            rect = ResourceManager::GetSprite(TILESET, 16);
             break;
 
         case TileType::RESOURCE_SPAWNER:
-            rect = ResourceManager::GetSprite(TILESET, 5);
+            rect = ResourceManager::GetSprite(TILESET, 16);
             break;
 
         case TileType::LIGHT:
-            rect = ResourceManager::GetSprite(TILESET, 0);
+            rect = ResourceManager::GetSprite(TILESET, 4560);
             break;
 
         default:

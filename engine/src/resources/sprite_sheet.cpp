@@ -61,34 +61,51 @@ static SpriteConfig load_config(const std::string& filename)
     return cfg;
 }
 
+// TODO: REFACTOR
 SpriteSheet::SpriteSheet(std::string_view path, SDL_Surface* surface)
 {
     std::filesystem::path p{path};
     std::filesystem::path without_ext = p.parent_path() / p.stem();
 
     SpriteConfig sc = load_config(without_ext.string() + ".prefab");
+    LOG_DEBUG("Sheet config: margin={}, padding={}, height={}, width={}",
+              sc.margin, sc.padding, sc.sprite_height, sc.sprite_width);
 
-    glm::vec4 pos;
+    const int texW = surface->w;
+    const int texH = surface->h;
 
-    LOG_DEBUG("Established sheet config: {},{},{},{}", sc.margin, sc.padding, sc.sprite_height, sc.sprite_width);
+    // Clear any existing
+    m_SpritesRects.clear();
+    m_SpritesRects.reserve( (texW / sc.sprite_width) * (texH / sc.sprite_height) );
 
-    for(int i = sc.margin; i < surface->h; i+=(sc.sprite_width + sc.padding))
+    int count = 0;
+
+    int px1 = sc.sprite_width;
+    int py1 = sc.sprite_height;
+
+    for (int y = sc.margin; y + sc.sprite_height <= texH; y += sc.sprite_height + sc.padding)
     {
-        for(int j = sc.margin; j < surface->w; j+=(sc.sprite_height + sc.padding))
+        for (int x = sc.margin; x + sc.sprite_width <= texW; x += sc.sprite_width + sc.padding)
         {
-            float x0 = float(j) / surface->w;
-            float y0 = float(i) / surface->h;
-            float x1 = float(j + sc.sprite_height) / surface->w;
-            float y1 = float(i + sc.sprite_width)  / surface->h;
+            int px0 = x;
+            int py0 = y;
+            
+            float u0 = float(px0) / float(texW);
+            float v0 = float(py0) / float(texH);
+            float u1 = float(px1) / float(texW);
+            float v1 = float(py1) / float(texH);
 
-            pos.x = x0;
-            pos.y = y0;
-            pos.z = x1;
-            pos.w = y1;
+            m_SpritesRects.emplace_back(u0, v0, u1, v1);
 
-            m_SpritesRects.push_back(pos);
+            if (++count <= 6)
+            {
+                LOG_DEBUG("rect[{}] px:({},{})-({},{}) norm:({:.6f},{:.6f})-({:.6f},{:.6f})",
+                          count-1, px0, py0, px1, py1, u0, v0, u1, v1);
+            }
         }
     }
+
+    LOG_DEBUG("Total sprites rects: {}", (int)m_SpritesRects.size());
 }
 
 glm::vec4 SpriteSheet::GetSprite(int pos)
