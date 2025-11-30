@@ -21,6 +21,7 @@ struct Tile
     glm::vec3 rot{ 0.0f };
     glm::vec4 color{ 0.0f }; // later replaced by texture
     TileType type{ TileType::OBSTACLE };
+    glm::vec4 tex_rect{0.0f, 0.0f, 1.0f, 1.0f};
 };
 
 class Map
@@ -58,4 +59,5 @@ private:
     void ComputeResources();
     void ComputeLight();
     glm::vec4 ComputeColors(int i, int j);
+    glm::vec4 ComputeTextures(int i, int j);
 };

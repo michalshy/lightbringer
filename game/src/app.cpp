@@ -8,7 +8,9 @@
 #include "app.h"
 #include "renderer/light_manager.h"
 #include "renderer/renderer.h"
+#include "resources/resource_manager.h"
 #include "timer/timer.h"
+#include "config_params.h"
 
 App::App()
 {
@@ -27,7 +29,10 @@ bool App::Init()
     if (!window || !window->Init())
         return false;
 
-    if (!Renderer::Init(window->GetWindowRaw()))
+    if (!ResourceManager::Init())
+        return false;
+
+    if (!Renderer::Init(window->GetWindowRaw(), TILESET))
         return false;
     
     if (!game || !game->Init())
@@ -63,7 +68,7 @@ void App::Run()
         PollEvents();
         
         Renderer::SetClearColor({0.1f, 0.12f, 0.15f, 1.0f});
-        Renderer::BeginFrame(); 
+        Renderer::BeginFrame(TILESET); 
         OnFrame(delta_time); 
         
         EndFrame();  
@@ -76,6 +81,8 @@ void App::Run()
 void App::Exit()
 {
     Renderer::Shutdown();
+
+    ResourceManager::Shutdown();
 
 #ifdef BUILD_WITH_EDITOR
     editor->Exit();

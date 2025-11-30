@@ -14,24 +14,35 @@ generate() {
 }
 
 build() {
-    config=$1
-    echo "BUILDING $config"
-    make config=$config
+    config_upper=$1      # Debug or Release (for folder names)
+    config_lower=$(echo "$config_upper" | tr '[:upper:]' '[:lower:]') # debug or release
 
-    cp -r $RES_DIR "$BIN_DIR/$config/"
+    echo "BUILDING $config_upper"
+
+    make config=$config_lower
+
+    mkdir -p "$BIN_DIR/$config_upper"
+    cp -r "$RES_DIR" "$BIN_DIR/$config_upper/"
 }
 
 run_game() {
-    config=$1
-    echo "Launching"
-    "$BIN_DIR/$config/$PROJECT_NAME"
+    config_upper=$1  # Debug or Release
+    echo "Launching ($config_upper)"
+    "$BIN_DIR/$config_upper/$PROJECT_NAME"
 }
 
 case $1 in
     generate) generate;;
-    debug) build "debug";;
-    release) build "release";;
-    run-debug) run_game "Debug";;
+    debug)       build "Debug";;
+    release)     build "Release";;
+    run-debug)   run_game "Debug";;
     run-release) run_game "Release";;
     *)
+        echo "Usage:"
+        echo "  $0 generate"
+        echo "  $0 debug"
+        echo "  $0 release"
+        echo "  $0 run-debug"
+        echo "  $0 run-release"
+        ;;
 esac

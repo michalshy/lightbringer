@@ -1,5 +1,6 @@
 ﻿#include "engine_pch.h"
 #include "log.h"
+#include "resources/resource_manager.h"
 #include <cstdint>
 #include "renderer.h"
 #if HW_WIN
@@ -20,53 +21,6 @@ struct QuadVertex
     glm::vec4 Color;
 };
 
-uint32_t Renderer::CreateTexture(const std::string& path)
-{
-    // load using SDL_image
-    SDL_Surface* surface = IMG_Load(path.c_str());
-    if (!surface)
-    {
-        return 0;
-    }
-
-    GLenum format;
-    if (surface->format->BytesPerPixel == 4)
-    {
-        format = (surface->format->Rmask == 0x000000ff) 
-                 ? GL_RGBA 
-                 : GL_BGRA;
-    }
-    else if (surface->format->BytesPerPixel == 3)
-    {
-        format = (surface->format->Rmask == 0x000000ff) 
-                 ? GL_RGB 
-                 : GL_BGR;
-    }
-    else
-    {
-        SDL_FreeSurface(surface);
-        return 0;
-    }
-
-    GLuint texID;
-    glGenTextures(1, &texID);
-    glBindTexture(GL_TEXTURE_2D, texID);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
-                 surface->w, surface->h, 0,
-                 format, GL_UNSIGNED_BYTE, surface->pixels);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    SDL_FreeSurface(surface);
-
-    return texID;
-}
-
 void Renderer::SetupOpenGLState()
 {
     glEnable(GL_BLEND);
@@ -76,7 +30,7 @@ void Renderer::SetupOpenGLState()
     glEnable(GL_MULTISAMPLE);
 }
 
-bool Renderer::Init(SDL_Window* window)
+bool Renderer::Init(SDL_Window* window, std::string_view path)
 {
     IMG_Init(IMG_INIT_PNG);
 
@@ -84,7 +38,8 @@ bool Renderer::Init(SDL_Window* window)
     s_Data->window_raw = window;
     if (!window) return false;
 
-    s_Data->TexAtlas = CreateTexture("res/sprites/sheets/tileset.png");
+    // Register sprite sheet to be used by other game objects
+    ResourceManager::RegisterSpriteSheet(path.data());
 
     // Create quad geometry (4 verts)
     float vertices[] = {
@@ -147,10 +102,13 @@ bool Renderer::Init(SDL_Window* window)
     s_Data->QuadShader = Shader("res/shaders/inst.vert", "res/shaders/inst.frag");
     s_Data->ProjectionMatrix = glm::ortho(0.0f, 1280.0f, 0.0f, 720.0f, -1.0f, 1.0f);
     s_Data->InstanceBuffer.reserve(1024);
+
+    LOG_DEBUG("INITIALIZED RENDERER");
+
     return true;
 }
 
-void Renderer::BeginFrame()
+void Renderer::BeginFrame(std::string_view tileset)
 {
     int display_w, display_h;
     SDL_GL_GetDrawableSize(s_Data->window_raw, &display_w, &display_h);
@@ -158,7 +116,7 @@ void Renderer::BeginFrame()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, s_Data->TexAtlas);
+    glBindTexture(GL_TEXTURE_2D, ResourceManager::GetTexture(tileset.data()));
 
     s_Data->QuadShader.Use(); // <-- bind shader before uniforms
     s_Data->QuadShader.SetMat4("u_ViewProjection", s_Data->ProjectionMatrix);

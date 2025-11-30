@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include "shader.h"
 #include <memory>
+#include <string_view>
 #include <vector>
 
 class Window; 
@@ -12,17 +13,15 @@ class Window;
 class Renderer
 {
 public:
-    ENGINE_API static bool Init(SDL_Window* window);
+    ENGINE_API static bool Init(SDL_Window* window, std::string_view path);
     ENGINE_API static void Shutdown();
     
-    ENGINE_API static void BeginFrame();
+    ENGINE_API static void BeginFrame(std::string_view tileset);
     ENGINE_API static void EndFrame();
     ENGINE_API static void PostFrame();
     
     ENGINE_API static void SetClearColor(const glm::vec4& color);
     ENGINE_API static void SetProjectionMatrix(const glm::mat4& matrix);
-
-    ENGINE_API static uint32_t CreateTexture(const std::string& file);
 
     ENGINE_API static void Submit(const glm::mat4& transform, const glm::vec4& color, const glm::vec4& rect);
     ENGINE_API static void Submit(const glm::vec2& pos, const glm::vec2& scale, const glm::vec4& color, const glm::vec4& rect);
@@ -47,7 +46,6 @@ private:
             glm::vec4 TexRect;
         };
         std::vector<InstanceData> InstanceBuffer;
-        uint32_t TexAtlas;
     };
     static std::unique_ptr<RendererData> s_Data;
 

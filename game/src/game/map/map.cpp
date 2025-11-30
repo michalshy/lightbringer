@@ -10,9 +10,11 @@
 #include <random>
 #include "renderer/light_manager.h"
 #include "renderer/renderer.h"
+#include "resources/resource_manager.h"
 #include "scene/components.h"
 #include "scene/entity.h"
 #include "scene/scene.h"
+#include "config_params.h"
 
 constexpr float WALL_CHANCE = 0.45f;
 constexpr int ITERATIONS = 5;
@@ -160,15 +162,13 @@ void Map::Update()
 
 void Map::Draw()
 {
-    glm::vec4 rect(0.0f, 0.0f, 1.0f, 1.0f); // whole texture
-
     for (const auto& row : map_grid)
     {
         for (const auto& col : row)
         {
             glm::vec4 final_color = col.color;
             final_color *= light_map[(size_t)col.pos.y / TILE_SIZE][(size_t)col.pos.x / TILE_SIZE];
-            Renderer::DrawQuad(col.pos, col.scale, final_color, rect);
+            Renderer::DrawQuad(col.pos, col.scale, final_color, col.tex_rect);
         }
     }
 }
@@ -183,6 +183,7 @@ void Map::DefineEntities()
             map_grid[i][j].pos = start_position + glm::vec3(TILE_SIZE / 2.0f, TILE_SIZE / 2.0f, 0.0f);
             map_grid[i][j].scale = { TILE_SIZE, TILE_SIZE, 1.0f };
             map_grid[i][j].color = ComputeColors(i, j);
+            map_grid[i][j].tex_rect = ComputeTextures(i, j);
 
             start_position += glm::vec3(TILE_SIZE, 0, 0);
         }
@@ -419,4 +420,44 @@ glm::vec4 Map::ComputeColors(int i, int j)
             break;
     } 
     return color;
+}
+
+glm::vec4 Map::ComputeTextures(int i, int j)
+{
+    glm::vec4 rect = glm::vec4{1.0f};
+
+    switch (map_grid[i][j].type) {
+        case TileType::OBSTACLE:
+            rect = ResourceManager::GetSprite(TILESET, 0);
+            break;
+
+        case TileType::NONOBSTACLE:
+            rect = ResourceManager::GetSprite(TILESET, 16);
+            break;
+
+        case TileType::SPECIAL:
+            rect = ResourceManager::GetSprite(TILESET, 16);
+            break;
+
+        case TileType::ALLY_SPAWNER:
+            rect = ResourceManager::GetSprite(TILESET, 3);
+            break;
+
+        case TileType::ENEMY_SPAWNER:
+            rect = ResourceManager::GetSprite(TILESET, 4);
+            break;
+
+        case TileType::RESOURCE_SPAWNER:
+            rect = ResourceManager::GetSprite(TILESET, 5);
+            break;
+
+        case TileType::LIGHT:
+            rect = ResourceManager::GetSprite(TILESET, 0);
+            break;
+
+        default:
+            LOG_ERROR("We do not handle this TileType!");
+            break;
+    } 
+    return rect;
 }
