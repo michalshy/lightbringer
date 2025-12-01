@@ -425,6 +425,7 @@ glm::vec4 Map::ComputeColors(int i, int j)
 glm::vec4 Map::ComputeTextures(int i, int j)
 {
     glm::vec4 rect = glm::vec4{1.0f};
+    std::uniform_int_distribution<> dist(1034, 1037);
 
     switch (map_grid[i][j].type) {
         case TileType::OBSTACLE:
@@ -432,11 +433,11 @@ glm::vec4 Map::ComputeTextures(int i, int j)
             break;
 
         case TileType::NONOBSTACLE:
-            rect = ResourceManager::GetSprite(TILESET, 412);
+            rect = ResourceManager::GetSprite(TILESET, dist(rng)); //34-37
             break;
 
         case TileType::SPECIAL:
-            rect = ResourceManager::GetSprite(TILESET, 412);
+            rect = ResourceManager::GetSprite(TILESET, dist(rng));
             break;
 
         case TileType::ALLY_SPAWNER:

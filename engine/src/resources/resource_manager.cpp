@@ -7,8 +7,8 @@
 #include <filesystem>
 #include <memory>
 #include <SDL_image.h>
-#include <GL/glew.h>
 #include <string_view>
+#include "renderer/renderer.h"
 
 static const std::string RESOURCES_DIRECTORY = "res";
 static const std::string SPRITESHEETS_DIRECTORY = "sprites/sheets";

@@ -38,11 +38,16 @@ struct CoRigidBody {
 
 struct CoSprite
 {
+    glm::vec4 tex_rect{ 0.0f, 0.0f, 1.0f, 1.0f };
     glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
 
     void UpdateColor(const glm::vec4& vec)
     {
         color = vec;
+    }
+    void UpdateTex(const glm::vec4& vec)
+    {
+        tex_rect = vec;
     }
 };
 

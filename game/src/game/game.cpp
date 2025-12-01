@@ -49,11 +49,9 @@ void Game::Draw()
 
     m_Map->Draw();
 
-    glm::vec4 rect(0.2f, 0.2f, 0.4f, 0.4f); // whole texture
-
     for(auto [ent, sprite, transform] : m_Scene->View<CoSprite, CoTransform>().each())
     {
-        Renderer::DrawQuad(transform.GetMatrix(), sprite.color, rect);
+        Renderer::DrawQuad(transform.GetMatrix(), sprite.color, sprite.tex_rect);
     }
 }
 

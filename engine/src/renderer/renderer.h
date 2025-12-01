@@ -7,7 +7,11 @@
 #include <memory>
 #include <string_view>
 #include <vector>
-
+#if HW_WIN
+#include <glad/glad.h>
+#else
+#include <GL/glew.h>
+#endif
 class Window; 
 
 class Renderer

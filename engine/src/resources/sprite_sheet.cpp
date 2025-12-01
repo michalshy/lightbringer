@@ -1,3 +1,4 @@
+#include "engine_pch.h"
 #include "sprite_sheet.h"
 #include "SDL_surface.h"
 #include "log.h"

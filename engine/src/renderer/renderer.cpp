@@ -3,16 +3,11 @@
 #include "resources/resource_manager.h"
 #include <cstdint>
 #include "renderer.h"
-#if HW_WIN
-    #include <glad/glad.h>
-#else
-    #include <GL/glew.h>
-#endif
 #include <glm/ext/matrix_clip_space.hpp>
 #include "light_manager.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "SDL2/SDL_image.h"
+#include "SDL_image.h"
 std::unique_ptr<Renderer::RendererData> Renderer::s_Data = nullptr;
 
 struct QuadVertex

@@ -10,6 +10,8 @@
 #include "game/map/map_consts.h"
 #include <SDL.h>
 #include <memory>
+#include "config_params.h"
+#include "resources/resource_manager.h"
 
 constexpr glm::ivec2 PLAYER_SIZE{6,12};
 
@@ -21,7 +23,6 @@ Player::Player(Entity&& entity) : m_PlayerEntity(entity)
     auto& t = m_PlayerEntity.GetComponent<CoTransform>();
     t.position = start_position;
     t.scale = glm::vec3(PLAYER_SIZE.x, PLAYER_SIZE.y, 1.0f);
-    m_PlayerEntity.AddComponent<CoSprite>(glm::vec4{0.0f, 0.0f, 1.0f, 1.0f});
     m_PlayerEntity.AddComponent<CoCollider>(glm::ivec2(PLAYER_SIZE.x, PLAYER_SIZE.y), false);
     m_PlayerEntity.AddComponent<CoLight>(CoLight{glm::vec3{1.0f, 1.0f, 0.6f}, 350.0f, 0.7f, true});
 }
@@ -32,6 +33,8 @@ bool Player::Init(std::shared_ptr<Camera> camera)
         return false;
 
     m_Camera = camera;
+    m_PlayerEntity.AddComponent<CoSprite>(ResourceManager::GetSprite(TILESET, 197), glm::vec4{ 0.0f, 0.0f, 1.0f, 1.0f });
+
     return true;
 }
 
