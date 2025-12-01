@@ -1,4 +1,3 @@
-++ Begin README
 # Lightbringer — 2D OpenGL Game & Engine (SDL2 + Premake)
 
 Lightbringer is a small, educational 2D game project built on a modular game engine written in C++. It demonstrates a compact engine architecture with a tile/mesh-based renderer, resource manager, scene/system components, basic AI and lightmaps, and an optional in-editor UI.
